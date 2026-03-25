@@ -1,0 +1,9 @@
+# python
+.venv
+
+# idea
+__pycache__
+.idea
+.env
+
+.dockerignore
