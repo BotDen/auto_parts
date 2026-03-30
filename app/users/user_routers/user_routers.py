@@ -32,4 +32,4 @@ async def get_user(session: SessionDep, current_user: UserBase = Depends(get_cur
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Пользователь не найден")
     if not result.advertisements:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Объявления не найден")
-    return result
+    return UserResponseWithAdSchema.model_validate(result)

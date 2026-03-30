@@ -1,14 +1,15 @@
+from typing import List
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy import Sequence
 
 from app.advertisements.crud.crud import CRUDAdvertisement
+from app.advertisements.models import AdvertisementBase
 from app.advertisements.schemas import (
     AdvertisementCreateSchema,
     AdvertisementShortResponseSchema,
     AdvertisementUpdateSchema,
-    ListAdvertisementResponseSchema,
+    ListAdvertisementShortResponseSchema,
 )
 from app.core.database import SessionDep
 from app.users.crud.crud import get_current_user
@@ -61,7 +62,7 @@ async def get_advertisement(advertisement_id: UUID, session: SessionDep):
     return advertisement
 
 
-@router.get(path="", status_code=status.HTTP_200_OK, response_model=ListAdvertisementResponseSchema)
+@router.get(path="", status_code=status.HTTP_200_OK, response_model=ListAdvertisementShortResponseSchema)
 async def get_all_advertisement(session: SessionDep):
     """
     Метод получения всех объявлений без пагинации
@@ -73,7 +74,7 @@ async def get_all_advertisement(session: SessionDep):
     # Проверка получения списка объявлений из базы данных
     if not advertisement_list:
         raise ad_404_exception
-    return advertisement_list
+    return ListAdvertisementShortResponseSchema(ads=advertisement_list)
 
 
 @router.patch(path="/{advertisement_id}", status_code=status.HTTP_200_OK, response_model=AdvertisementShortResponseSchema)

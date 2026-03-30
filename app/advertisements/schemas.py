@@ -3,7 +3,7 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from app.users.models import UserBase
+
 from utility.sql_enum import StatusEnum
 
 
@@ -15,10 +15,12 @@ class AdvertisementsBaseSchema(BaseModel):
     price: float = Field(..., gt=0)
     photos_url: list[str | None]
 
+    model_config = ConfigDict(populate_by_name=True)
+
 
 class AdvertisementCreateSchema(AdvertisementsBaseSchema):
     """Схема для создания объявления"""
-    pass
+    author_id: UUID
 
 
 class AdvertisementUpdateSchema(AdvertisementsBaseSchema):
@@ -33,12 +35,17 @@ class AdvertisementShortResponseSchema(BaseModel):
     title: str
     description: str
     price: float
-    # author_id: UUID
     status: StatusEnum
 
-    model_config = ConfigDict(from_attributes=True)
+    model_config = ConfigDict(from_attributes=True, populate_by_name=True)
 
 
-class ListAdvertisementResponseSchema(BaseModel):
+class AdvertisementLongResponseSchema(AdvertisementShortResponseSchema):
+    author_id: UUID
+
+
+class ListAdvertisementShortResponseSchema(BaseModel):
     """Схема получения списка объявлений"""
-    ads: list[AdvertisementShortResponseSchema]
+    ads: list[AdvertisementLongResponseSchema] | None = Field(alias="advertisements")
+
+    model_config = ConfigDict(populate_by_name=True)

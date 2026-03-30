@@ -121,7 +121,7 @@ class CRUDUsers:
         :return: Возвращает объект пользователя с объявлениями
         """
         query = select(UserBase).where(UserBase.id == current_user.id).options(selectinload(UserBase.advertisements))
-        result = (await session.execute(query)).unique.scalar_one_or_none()
+        result = (await session.execute(query)).unique().scalar_one_or_none()
 
         return result
 

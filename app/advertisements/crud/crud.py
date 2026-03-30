@@ -1,7 +1,6 @@
-from typing import Sequence
 from uuid import UUID
 
-from sqlalchemy import select
+from sqlalchemy import select, Sequence
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -33,13 +32,13 @@ class CRUDAdvertisement:
 
     @classmethod
     async def get_advertisement(cls, ad_id: UUID, session: AsyncSession) -> AdvertisementBase:
-        query = select(AdvertisementBase).where(AdvertisementBase.id == ad_id)
+        query = select(AdvertisementBase).where(AdvertisementBase.id == ad_id).options(selectinload(AdvertisementBase.author))
         db_item = (await session.execute(query)).scalars().first()
 
         return db_item
 
     @classmethod
-    async def get_all_advertisements(cls, session: AsyncSession) -> list[AdvertisementBase]:
+    async def get_all_advertisements(cls, session: AsyncSession) -> Sequence[AdvertisementBase]:
         query = select(AdvertisementBase).options(selectinload(AdvertisementBase.author))
         db_items = list((await session.execute(query)).scalars().all())
 

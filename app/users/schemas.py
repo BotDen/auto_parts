@@ -9,7 +9,7 @@ from app.advertisements.schemas import AdvertisementShortResponseSchema
 class UserBaseSchema(BaseModel):
     """Базовая схема объекта User"""
 
-    username: str = Field(..., min_length=1, max_length=128, description="Имя или логин пользователя")
+    user_name: str = Field(..., min_length=1, max_length=128, description="Имя или логин пользователя", alias="username")
     email: EmailStr = Field(..., max_length=128, description="Электронная почта пользователя")
     avatar_url: str | None = None
 
@@ -35,18 +35,18 @@ class UserResponseSchema(BaseModel):
     """Схема для обработки ответа по API"""
 
     id: UUID
-    username: str
+    user_name: str = Field(alias="username")
     email: EmailStr
     avatar_url: str | None = None
     created_at: datetime
 
-    model_config = ConfigDict(from_attributes=True)
+    model_config = ConfigDict(from_attributes=True, populate_by_name=True)
 
 
 class UserResponseWithAdSchema(UserResponseSchema):
     """Схема ответа пользователя с объявлениями"""
 
-    ads: list[AdvertisementShortResponseSchema]
+    ads: list[AdvertisementShortResponseSchema] | None = Field(alias="advertisements")
 
 
 class TokenResponseSchema(BaseModel):

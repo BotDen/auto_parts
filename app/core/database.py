@@ -1,11 +1,11 @@
 import uuid
-from datetime import datetime, timezone
+from datetime import datetime
 from typing import Annotated
 
 from fastapi import Depends
 from sqlalchemy import DateTime, func, text, UUID
 from sqlalchemy.ext.asyncio import async_sessionmaker, AsyncAttrs, AsyncSession, create_async_engine
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, MappedAsDataclass
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from config import settings
 
 
@@ -19,24 +19,22 @@ engine = create_async_engine(url=DATABASE_URL)
 async_session = async_sessionmaker(bind=engine, expire_on_commit=False)
 
 
-class Base(MappedAsDataclass, DeclarativeBase, AsyncAttrs, kw_only=True):
+class Base(DeclarativeBase, AsyncAttrs):
     """Базовый класс для моделей базы данных"""
     __abstract__ = True
 
     id: Mapped[UUID] = mapped_column(
         UUID(as_uuid=True),
         primary_key=True,
-        default_factory=uuid.uuid4,
+        default=uuid.uuid4,
         server_default=text("gen_random_uuid()"),
     )
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
-        default=func.now(),
         server_default=func.now(),
     )
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
-        default=func.now(),
         server_default=func.now(),
         onupdate=func.now(),
     )

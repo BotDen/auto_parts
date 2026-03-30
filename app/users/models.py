@@ -14,12 +14,11 @@ class UserBase(Base):
     username: Mapped[str]
     email: Mapped[str] = mapped_column(unique=True)
     hashed_password: Mapped[str]
-    avatar_url: Mapped[str | None] = mapped_column(default=None, init=False)
+    avatar_url: Mapped[str | None] = mapped_column(default=None)
     advertisements: Mapped[list["AdvertisementBase"] | None] = relationship(
         "AdvertisementBase",
         back_populates="author",
         cascade="all, delete-orphan",
-        init=False,
     )
     deleted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), default=None, nullable=True)
     is_blocked: Mapped[bool] = mapped_column(default=False, server_default=text("false"), nullable=False)
