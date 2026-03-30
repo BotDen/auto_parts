@@ -1,19 +1,45 @@
+import uuid
+from datetime import datetime, timezone
 from typing import Annotated
 
 from fastapi import Depends
-from sqlalchemy.ext.asyncio import async_sessionmaker, AsyncSession, create_async_engine
-from sqlalchemy.orm import DeclarativeBase, MappedAsDataclass
+from sqlalchemy import DateTime, func, text, UUID
+from sqlalchemy.ext.asyncio import async_sessionmaker, AsyncAttrs, AsyncSession, create_async_engine
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, MappedAsDataclass
 from config import settings
 
 
-engine = create_async_engine(settings.DATABASE_URL)
+# Получаем URL адрес базы данных
+DATABASE_URL = settings.get_db_url()
+
+# Создаем асинхронный движок для БД
+engine = create_async_engine(url=DATABASE_URL)
+
+# Фабрика асинхронных сессий
+async_session = async_sessionmaker(bind=engine, expire_on_commit=False)
 
 
-async_session = async_sessionmaker(engine, expire_on_commit=False)
+class Base(MappedAsDataclass, DeclarativeBase, AsyncAttrs, kw_only=True):
+    """Базовый класс для моделей базы данных"""
+    __abstract__ = True
 
-
-class Model(MappedAsDataclass, DeclarativeBase):
-    pass
+    id: Mapped[UUID] = mapped_column(
+        UUID(as_uuid=True),
+        primary_key=True,
+        default_factory=uuid.uuid4,
+        server_default=text("gen_random_uuid()"),
+    )
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        default=func.now(),
+        server_default=func.now(),
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        default=func.now(),
+        server_default=func.now(),
+        onupdate=func.now(),
+    )
 
 
 async def get_db():
